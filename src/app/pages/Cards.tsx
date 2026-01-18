@@ -1,48 +1,81 @@
 import { useState } from "react";
 import { Layout } from "../components/Layout";
 import { AccountCard } from "../components/AccountCard";
+import { AddCardDialog } from "../components/AddCardDialog";
 import { Button } from "../components/ui/button";
 import { Plus } from "lucide-react";
 import imgNubankLogo from "@/assets/104735c9164e2efb4290fa655bd47ea2b28be0e7.png";
 import imgInterLogo from "@/assets/9947ddd88ee4489faa5d8ed9b00e21de304ef2db.png";
 import imgNubankLogo1 from "@/assets/26d52142a70858c0b396955ffc0a8d5d4f15c755.png";
 
-const CARDS = [
-  {
-    id: "1",
-    name: "Nubank",
-    balance: 120.0,
-    dueDate: "Vence dia 10",
-    lastDigits: "5897",
-    logo: imgNubankLogo,
-    color: "#8A05BE",
-  },
-  {
-    id: "2",
-    name: "Inter",
-    balance: 2300.0,
-    dueDate: "Vence dia 21",
-    lastDigits: "5897",
-    logo: imgInterLogo,
-    color: "#FF7A00",
-  },
-  {
-    id: "3",
-    name: "Picpay",
-    balance: 17000.0,
-    dueDate: "Vence dia 12",
-    lastDigits: "5897",
-    logo: imgNubankLogo1,
-    color: "#21C25E",
-  },
-];
-
 export function Cards() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isCardDialogOpen, setIsCardDialogOpen] = useState(false);
+  const [cards, setCards] = useState([
+    {
+      id: "1",
+      name: "Nubank",
+      balance: 120.0,
+      dueDate: "Vence dia 10",
+      lastDigits: "5897",
+      logo: imgNubankLogo,
+      color: "#8A05BE",
+    },
+    {
+      id: "2",
+      name: "Inter",
+      balance: 2300.0,
+      dueDate: "Vence dia 21",
+      lastDigits: "5897",
+      logo: imgInterLogo,
+      color: "#FF7A00",
+    },
+    {
+      id: "3",
+      name: "Picpay",
+      balance: 17000.0,
+      dueDate: "Vence dia 12",
+      lastDigits: "5897",
+      logo: imgNubankLogo1,
+      color: "#21C25E",
+    },
+  ]);
 
-  const filteredCards = CARDS.filter((card) =>
+  const filteredCards = cards.filter((card) =>
     card.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleAddCard = (newCard: {
+    name: string;
+    brand: string;
+    lastDigits: string;
+    amount: number;
+    dueDate: string;
+  }) => {
+    const logoMap: { [key: string]: string } = {
+      nubank: imgNubankLogo,
+      inter: imgInterLogo,
+      picpay: imgNubankLogo1,
+    };
+    const colorMap: { [key: string]: string } = {
+      nubank: "#8A05BE",
+      inter: "#FF7A00",
+      picpay: "#21C25E",
+      xp: "#000000",
+      outro: "#6B7280",
+    };
+
+    const card = {
+      id: Date.now().toString(),
+      name: newCard.name,
+      balance: newCard.amount,
+      dueDate: `Vence dia ${newCard.dueDate}`,
+      lastDigits: newCard.lastDigits,
+      logo: logoMap[newCard.brand] || imgNubankLogo1,
+      color: colorMap[newCard.brand] || "#6B7280",
+    };
+    setCards([...cards, card]);
+  };
 
   return (
     <Layout
@@ -52,7 +85,7 @@ export function Cards() {
       showDatePicker={false}
       actionButton={
         <Button
-          onClick={() => console.log("Adicionar cartão")}
+          onClick={() => setIsCardDialogOpen(true)}
           className="bg-[#080b12] hover:bg-[#080b12]/90 text-white rounded-[100px] px-[16px] py-[12px] gap-[8px] w-full sm:w-auto shrink-0 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
         >
           <Plus className="size-[16px] transition-transform duration-300 group-hover:rotate-90" />
@@ -67,7 +100,7 @@ export function Cards() {
             <div>
               <p className="text-[14px] text-[#6B7280] mb-[4px]">Total em cartões</p>
               <p className="text-[24px] sm:text-[28px] font-bold text-[#080b12]">
-                R$ {CARDS.reduce((sum, card) => sum + card.balance, 0).toLocaleString("pt-BR", {
+                R$ {cards.reduce((sum, card) => sum + card.balance, 0).toLocaleString("pt-BR", {
                   minimumFractionDigits: 2,
                 })}
               </p>
@@ -75,7 +108,7 @@ export function Cards() {
             <div className="text-right">
               <p className="text-[14px] text-[#6B7280] mb-[4px]">Cartões ativos</p>
               <p className="text-[24px] sm:text-[28px] font-bold text-[#080b12]">
-                {CARDS.length}
+                {cards.length}
               </p>
             </div>
           </div>
@@ -102,7 +135,13 @@ export function Cards() {
               </h3>
             </div>
             <div className="flex gap-[8px]">
-              <Button variant="ghost" size="icon" className="h-[24px] w-[24px] transition-all duration-300 hover:scale-110">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-[24px] w-[24px] transition-all duration-300 hover:scale-110 hover:bg-gray-100 active:scale-95"
+                onClick={() => setIsCardDialogOpen(true)}
+                aria-label="Adicionar cartão"
+              >
                 <Plus className="size-[16px]" />
               </Button>
             </div>
@@ -133,6 +172,13 @@ export function Cards() {
           </div>
         </div>
       </div>
+
+      {/* Add Card Dialog */}
+      <AddCardDialog
+        open={isCardDialogOpen}
+        onOpenChange={setIsCardDialogOpen}
+        onAddCard={handleAddCard}
+      />
     </Layout>
   );
 }

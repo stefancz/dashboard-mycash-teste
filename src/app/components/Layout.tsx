@@ -4,6 +4,7 @@ import { Input } from "./ui/input";
 import { Menu, Search, SlidersHorizontal, Calendar as CalendarIcon } from "lucide-react";
 import { Sidebar } from "./Sidebar";
 import { DateRangePicker } from "./DateRangePicker";
+import { FilterDialog } from "./FilterDialog";
 import { DateRange } from "react-day-picker";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -16,6 +17,11 @@ interface LayoutProps {
   showDatePicker?: boolean;
   title?: string;
   actionButton?: ReactNode;
+  onFilterChange?: (filters: {
+    category?: string;
+    type?: "income" | "expense" | "all";
+    account?: string;
+  }) => void;
 }
 
 export function Layout({
@@ -26,12 +32,22 @@ export function Layout({
   showDatePicker = true,
   title,
   actionButton,
+  onFilterChange,
 }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: new Date(2026, 0, 1),
     to: new Date(2026, 0, 31),
   });
+
+  const handleApplyFilters = (filters: {
+    category?: string;
+    type?: "income" | "expense" | "all";
+    account?: string;
+  }) => {
+    onFilterChange?.(filters);
+  };
 
   return (
     <div className="flex h-screen bg-[#F9FAFB] overflow-hidden">
@@ -82,7 +98,13 @@ export function Layout({
 
               {/* Filter button */}
               {showSearch && (
-                <Button variant="ghost" size="icon" className="shrink-0 transition-all duration-300 hover:scale-110 hover:bg-gray-100 active:scale-95">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setFilterDialogOpen(true)}
+                  className="shrink-0 transition-all duration-300 hover:scale-110 hover:bg-gray-100 active:scale-95"
+                  aria-label="Filtrar"
+                >
                   <SlidersHorizontal className="size-[16px] transition-transform duration-300 hover:rotate-90" />
                 </Button>
               )}
@@ -117,6 +139,15 @@ export function Layout({
           </div>
         </div>
       </div>
+
+      {/* Filter Dialog */}
+      {onFilterChange && (
+        <FilterDialog
+          open={filterDialogOpen}
+          onOpenChange={setFilterDialogOpen}
+          onApplyFilters={handleApplyFilters}
+        />
+      )}
     </div>
   );
 }

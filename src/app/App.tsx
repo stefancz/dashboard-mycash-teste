@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "./components/ui/sonner";
 import { Dashboard } from "./pages/Dashboard";
 import { Cards } from "./pages/Cards";
 import { Transactions } from "./pages/Transactions";
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="/perfil" element={<Profile />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <Toaster />
     </BrowserRouter>
   );
 }

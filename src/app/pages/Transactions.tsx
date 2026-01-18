@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { Layout } from "../components/Layout";
+import { AddTransactionDialog } from "../components/AddTransactionDialog";
 import { Button } from "../components/ui/button";
-import { Plus, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimatedNumber } from "../components/AnimatedNumber";
 
 interface Transaction {
@@ -93,16 +94,70 @@ const INITIAL_TRANSACTIONS: Transaction[] = [
 
 export function Transactions() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [transactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
+  const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [transactionFilter, setTransactionFilter] = useState<"all" | "expense" | "income">("all");
+  const [filters, setFilters] = useState<{
+    category?: string;
+    type?: "income" | "expense" | "all";
+    account?: string;
+  }>({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const handleAddTransaction = (newTransaction: Omit<Transaction, "id">) => {
+    const transaction: Transaction = {
+      ...newTransaction,
+      id: Date.now().toString(),
+    };
+    setTransactions([transaction, ...transactions]);
+  };
+
+  const handleFilterChange = (newFilters: {
+    category?: string;
+    type?: "income" | "expense" | "all";
+    account?: string;
+  }) => {
+    setFilters(newFilters);
+  };
 
   const filteredTransactions = useMemo(() => {
-    if (!searchQuery) return transactions;
-    return transactions.filter(
-      (t) =>
-        t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        t.category.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [transactions, searchQuery]);
+    let filtered = transactions;
+
+    if (searchQuery) {
+      filtered = filtered.filter(
+        (t) =>
+          t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          t.category.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    if (transactionFilter !== "all") {
+      filtered = filtered.filter((t) => t.type === transactionFilter);
+    }
+
+    if (filters.type && filters.type !== "all") {
+      filtered = filtered.filter((t) => t.type === filters.type);
+    }
+    if (filters.category) {
+      filtered = filtered.filter((t) => t.category === filters.category);
+    }
+    if (filters.account) {
+      filtered = filtered.filter((t) => t.account === filters.account);
+    }
+
+    return filtered;
+  }, [transactions, searchQuery, transactionFilter, filters]);
+
+  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+  const paginatedTransactions = filteredTransactions.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   const financialData = useMemo(() => {
     const totalIncome = transactions
@@ -125,9 +180,10 @@ export function Transactions() {
       title="Transações"
       searchQuery={searchQuery}
       onSearchChange={setSearchQuery}
+      onFilterChange={handleFilterChange}
       actionButton={
         <Button
-          onClick={() => console.log("Adicionar transação")}
+          onClick={() => setIsDialogOpen(true)}
           className="bg-[#080b12] hover:bg-[#080b12]/90 text-white rounded-[100px] px-[16px] py-[12px] gap-[8px] w-full sm:w-auto shrink-0 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
         >
           <Plus className="size-[16px] transition-transform duration-300 group-hover:rotate-90" />
@@ -200,8 +256,13 @@ export function Transactions() {
               </h3>
             </div>
             <div className="flex items-center gap-[8px] sm:gap-[16px] w-full sm:w-auto">
-              <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                Despesas
+              <Button 
+                variant={transactionFilter === "expense" ? "default" : "outline"} 
+                size="sm" 
+                className="w-full sm:w-auto transition-all duration-300 hover:scale-105 active:scale-95"
+                onClick={() => setTransactionFilter(transactionFilter === "expense" ? "all" : "expense")}
+              >
+                {transactionFilter === "expense" ? "Todas" : "Despesas"}
               </Button>
             </div>
           </div>
@@ -233,7 +294,7 @@ export function Transactions() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredTransactions.map((transaction, index) => (
+                  {paginatedTransactions.map((transaction, index) => (
                     <tr
                       key={transaction.id}
                       className="border-b border-[#E5E7EB] last:border-0 transition-all duration-300 hover:bg-gray-50/50 animate-in fade-in slide-in-from-left-4"
@@ -279,30 +340,53 @@ export function Transactions() {
           {/* Pagination */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-[16px] mt-[24px] pt-[16px] border-t border-[#E5E7EB]">
             <p className="text-[12px] sm:text-[14px] text-[#6B7280]">
-              Mostrando 1 a {Math.min(10, filteredTransactions.length)} de{" "}
-              {filteredTransactions.length}
+              Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, filteredTransactions.length)} de {filteredTransactions.length}
             </p>
             <div className="flex items-center gap-[8px]">
-              <Button variant="outline" size="icon" className="h-[32px] w-[32px] transition-all duration-300 hover:scale-110">
-                ←
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="h-[32px] w-[32px] transition-all duration-300 hover:scale-110 active:scale-95"
+                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="size-[16px]" />
               </Button>
-              {[1, 2, 3, 4, 5].map((page) => (
-                <Button
-                  key={page}
-                  variant={page === 1 ? "default" : "outline"}
-                  size="icon"
-                  className="h-[32px] w-[32px] hidden sm:flex transition-all duration-300 hover:scale-110"
-                >
-                  {page}
-                </Button>
-              ))}
-              <Button variant="outline" size="icon" className="h-[32px] w-[32px] transition-all duration-300 hover:scale-110">
-                →
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                const page = i + 1;
+                return (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    size="icon"
+                    className="h-[32px] w-[32px] hidden sm:flex transition-all duration-300 hover:scale-110 active:scale-95"
+                    onClick={() => handlePageChange(page)}
+                  >
+                    {page}
+                  </Button>
+                );
+              })}
+              <span className="sm:hidden text-[14px] text-[#6B7280]">{currentPage} / {totalPages}</span>
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="h-[32px] w-[32px] transition-all duration-300 hover:scale-110 active:scale-95"
+                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+              >
+                <ChevronRight className="size-[16px]" />
               </Button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Add Transaction Dialog */}
+      <AddTransactionDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onAddTransaction={handleAddTransaction}
+      />
     </Layout>
   );
 }

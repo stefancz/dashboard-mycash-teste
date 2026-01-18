@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Layout } from "../components/Layout";
 import { AddTransactionDialog } from "../components/AddTransactionDialog";
+import { AddCardDialog } from "../components/AddCardDialog";
 import { BudgetCard } from "../components/BudgetCard";
 import { CashFlowChart } from "../components/CashFlowChart";
 import { AccountCard } from "../components/AccountCard";
@@ -120,10 +122,20 @@ const BUDGET_CATEGORIES = [
 ];
 
 export function Dashboard() {
+  const navigate = useNavigate();
   const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
   const [upcomingExpenses, setUpcomingExpenses] = useState<Transaction[]>(UPCOMING_EXPENSES);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCardDialogOpen, setIsCardDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [transactionFilter, setTransactionFilter] = useState<"all" | "expense" | "income">("all");
+  const [filters, setFilters] = useState<{
+    category?: string;
+    type?: "income" | "expense" | "all";
+    account?: string;
+  }>({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Calculate financial data
   const financialData = useMemo(() => {
@@ -186,17 +198,39 @@ export function Dashboard() {
     );
   };
 
-  // Filter transactions based on search
+  // Filter transactions based on search and filters
   const filteredTransactions = useMemo(() => {
-    if (!searchQuery) return transactions;
-    return transactions.filter(
-      (t) =>
-        t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        t.category.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [transactions, searchQuery]);
+    let filtered = transactions;
 
-  const cards = [
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(
+        (t) =>
+          t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          t.category.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Apply type filter (Despesas button)
+    if (transactionFilter !== "all") {
+      filtered = filtered.filter((t) => t.type === transactionFilter);
+    }
+
+    // Apply advanced filters
+    if (filters.type && filters.type !== "all") {
+      filtered = filtered.filter((t) => t.type === filters.type);
+    }
+    if (filters.category) {
+      filtered = filtered.filter((t) => t.category === filters.category);
+    }
+    if (filters.account) {
+      filtered = filtered.filter((t) => t.account === filters.account);
+    }
+
+    return filtered;
+  }, [transactions, searchQuery, transactionFilter, filters]);
+
+  const [cards, setCards] = useState([
     {
       id: "1",
       name: "Nubank",
@@ -224,12 +258,63 @@ export function Dashboard() {
       logo: imgNubankLogo1,
       color: "#21C25E",
     },
-  ];
+  ]);
+
+  const handleAddCard = (newCard: {
+    name: string;
+    brand: string;
+    lastDigits: string;
+    amount: number;
+    dueDate: string;
+  }) => {
+    const logoMap: { [key: string]: string } = {
+      nubank: imgNubankLogo,
+      inter: imgInterLogo,
+      picpay: imgNubankLogo1,
+    };
+    const colorMap: { [key: string]: string } = {
+      nubank: "#8A05BE",
+      inter: "#FF7A00",
+      picpay: "#21C25E",
+      xp: "#000000",
+      outro: "#6B7280",
+    };
+
+    const card = {
+      id: Date.now().toString(),
+      name: newCard.name,
+      balance: newCard.amount,
+      dueDate: `Vence dia ${newCard.dueDate}`,
+      lastDigits: newCard.lastDigits,
+      logo: logoMap[newCard.brand] || imgNubankLogo1,
+      color: colorMap[newCard.brand] || "#6B7280",
+    };
+    setCards([...cards, card]);
+  };
+
+  const handleFilterChange = (newFilters: {
+    category?: string;
+    type?: "income" | "expense" | "all";
+    account?: string;
+  }) => {
+    setFilters(newFilters);
+  };
+
+  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+  const paginatedTransactions = filteredTransactions.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   return (
     <Layout
       searchQuery={searchQuery}
       onSearchChange={setSearchQuery}
+      onFilterChange={handleFilterChange}
       actionButton={
         <Button
           onClick={() => setIsDialogOpen(true)}
@@ -316,10 +401,22 @@ export function Dashboard() {
               <h3 className="text-[16px] sm:text-[18px] font-semibold text-[#080b12]">Cards & contas</h3>
             </div>
             <div className="flex gap-[8px]">
-              <Button variant="ghost" size="icon" className="h-[24px] w-[24px]">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-[24px] w-[24px] transition-all duration-300 hover:scale-110 hover:bg-gray-100 active:scale-95"
+                onClick={() => setIsCardDialogOpen(true)}
+                aria-label="Adicionar cartão"
+              >
                 <Plus className="size-[16px]" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-[24px] w-[24px]">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-[24px] w-[24px] transition-all duration-300 hover:scale-110 hover:bg-gray-100 active:scale-95"
+                onClick={() => navigate("/cartoes")}
+                aria-label="Ver todos os cartões"
+              >
                 <ChevronRight className="size-[16px]" />
               </Button>
             </div>
@@ -347,7 +444,13 @@ export function Dashboard() {
             <Calendar className="size-[20px]" />
             <h3 className="text-[16px] sm:text-[18px] font-semibold text-[#080b12]">Próximas despesas</h3>
           </div>
-          <Button variant="ghost" size="icon" className="h-[24px] w-[24px]">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-[24px] w-[24px] transition-all duration-300 hover:scale-110 hover:bg-gray-100 active:scale-95"
+            onClick={() => setIsDialogOpen(true)}
+            aria-label="Adicionar despesa"
+          >
             <Plus className="size-[16px]" />
           </Button>
         </div>
@@ -385,8 +488,13 @@ export function Dashboard() {
               <Search className="size-[16px]" />
               <span className="text-[14px] text-[#6B7280]">Buscar lançamentos</span>
             </div>
-            <Button variant="outline" size="sm" className="w-full sm:w-auto">
-              Despesas
+            <Button 
+              variant={transactionFilter === "expense" ? "default" : "outline"} 
+              size="sm" 
+              className="w-full sm:w-auto transition-all duration-300 hover:scale-105 active:scale-95"
+              onClick={() => setTransactionFilter(transactionFilter === "expense" ? "all" : "expense")}
+            >
+              {transactionFilter === "expense" ? "Todas" : "Despesas"}
             </Button>
           </div>
         </div>
@@ -421,7 +529,7 @@ export function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {filteredTransactions.slice(0, 10).map((transaction, index) => (
+                {paginatedTransactions.map((transaction, index) => (
                   <tr key={transaction.id} className="border-b border-[#E5E7EB] last:border-0">
                     <td className="py-[12px] px-[8px] sm:px-[16px] hidden sm:table-cell">
                       <img
@@ -465,24 +573,40 @@ export function Dashboard() {
         {/* Pagination */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-[16px] mt-[24px] pt-[16px] border-t border-[#E5E7EB]">
           <p className="text-[12px] sm:text-[14px] text-[#6B7280]">
-            Mostrando 1 a {Math.min(10, filteredTransactions.length)} de {filteredTransactions.length}
+            Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, filteredTransactions.length)} de {filteredTransactions.length}
           </p>
           <div className="flex items-center gap-[8px]">
-            <Button variant="outline" size="icon" className="h-[32px] w-[32px]">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="h-[32px] w-[32px] transition-all duration-300 hover:scale-110 active:scale-95"
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+            >
               <ChevronLeft className="size-[16px]" />
             </Button>
-            {[1, 2, 3, 4, 5].map((page) => (
-              <Button
-                key={page}
-                variant={page === 1 ? "default" : "outline"}
-                size="icon"
-                className="h-[32px] w-[32px] hidden sm:flex"
-              >
-                {page}
-              </Button>
-            ))}
-            <span className="sm:hidden text-[14px] text-[#6B7280]">1 / 5</span>
-            <Button variant="outline" size="icon" className="h-[32px] w-[32px]">
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              const page = i + 1;
+              return (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="icon"
+                  className="h-[32px] w-[32px] hidden sm:flex transition-all duration-300 hover:scale-110 active:scale-95"
+                  onClick={() => handlePageChange(page)}
+                >
+                  {page}
+                </Button>
+              );
+            })}
+            <span className="sm:hidden text-[14px] text-[#6B7280]">{currentPage} / {totalPages}</span>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="h-[32px] w-[32px] transition-all duration-300 hover:scale-110 active:scale-95"
+              onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+            >
               <ChevronRight className="size-[16px]" />
             </Button>
           </div>
@@ -494,6 +618,13 @@ export function Dashboard() {
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         onAddTransaction={handleAddTransaction}
+      />
+
+      {/* Add Card Dialog */}
+      <AddCardDialog
+        open={isCardDialogOpen}
+        onOpenChange={setIsCardDialogOpen}
+        onAddCard={handleAddCard}
       />
     </Layout>
   );
