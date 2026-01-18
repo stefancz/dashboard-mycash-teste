@@ -4,9 +4,8 @@ import { SummaryCard } from '@/components/dashboard/SummaryCard'
 import { AreaChart } from '@/components/charts/AreaChart'
 import { CardsList } from '@/components/dashboard/CardsList'
 import { UpcomingExpenses } from '@/components/dashboard/UpcomingExpenses'
-import { TransactionForm } from '@/components/transactions/TransactionForm'
-import { Card } from '@/types'
-import { useState } from 'react'
+import { TransactionTable } from '@/components/transactions/TransactionTable'
+import { Card, Transaction } from '@/types'
 
 // Mock data - will be replaced with Supabase in PROMPT 10
 const categories = [
@@ -86,17 +85,46 @@ const upcomingExpenses = [
   },
 ]
 
+// Mock transactions
+const transactions: Transaction[] = [
+  {
+    id: '1',
+    description: 'Conta de água',
+    amount: 100,
+    type: 'expense',
+    category: 'Manutenção',
+    date: '2026-01-17',
+    account: 'Conta corrente',
+  },
+  {
+    id: '2',
+    description: 'Conta de Luz',
+    amount: 150,
+    type: 'expense',
+    category: 'Manutenção',
+    date: '2026-01-17',
+    account: 'Conta corrente',
+  },
+  {
+    id: '3',
+    description: 'Passeio no parque',
+    amount: 750,
+    type: 'expense',
+    category: 'Lazer',
+    date: '2026-01-17',
+    card: 'Cartão XP',
+    installments: '1/1',
+  },
+]
+
 // Mock chart data
 const months = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ']
 const incomeData = [12000, 12500, 13000, 12800, 13200, 12000, 11500, 12500, 13000, 13500, 14000, 14500]
 const expenseData = [10000, 10200, 10500, 9800, 11000, 10000, 10800, 10200, 10500, 10800, 11000, 11200]
 
 export function Dashboard() {
-  const [isTransactionFormOpen, setIsTransactionFormOpen] = useState(false)
-
   return (
-    <>
-      <Container>
+    <Container>
       {/* Category Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {categories.map((cat, index) => (
@@ -150,12 +178,11 @@ export function Dashboard() {
           <UpcomingExpenses expenses={upcomingExpenses} />
         </div>
       </div>
-      </Container>
 
-      <TransactionForm
-        isOpen={isTransactionFormOpen}
-        onClose={() => setIsTransactionFormOpen(false)}
-      />
-    </>
+      {/* Extrato detalhado */}
+      <div className="mt-6">
+        <TransactionTable transactions={transactions} />
+      </div>
+    </Container>
   )
 }
