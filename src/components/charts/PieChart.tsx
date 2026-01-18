@@ -1,5 +1,6 @@
 import { Card, Icon } from '@/components/ui'
 import { formatCurrency } from '@/utils/formatters'
+import { chartColors } from '@/utils/chartColors'
 import {
   PieChart as RechartsPieChart,
   Pie,
@@ -18,7 +19,14 @@ interface PieChartProps {
   }>
 }
 
-const COLORS = ['#A7FF00', '#FF0000', '#007BFF', '#FF9800', '#9C27B0', '#28A745']
+const COLORS = [
+  chartColors.getLime(),   // #A7FF00
+  chartColors.getRed(),    // #FF0000
+  chartColors.getBlue(),   // #007BFF
+  chartColors.getOrange(), // #FF9800
+  chartColors.getPurple(), // #9C27B0
+  chartColors.getGreen(),  // #28A745
+]
 
 export function PieChart({ title, data }: PieChartProps) {
   return (

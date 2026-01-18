@@ -1,5 +1,6 @@
 import { Card, Icon } from '@/components/ui'
 import { formatCurrency } from '@/utils/formatters'
+import { chartColors } from '@/utils/chartColors'
 import {
   AreaChart as RechartsAreaChart,
   Area,
@@ -42,32 +43,32 @@ export function AreaChart({
         <RechartsAreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="colorReceitas" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#A7FF00" stopOpacity={0.8} />
-              <stop offset="95%" stopColor="#A7FF00" stopOpacity={0.1} />
+              <stop offset="5%" stopColor={chartColors.getLime()} stopOpacity={0.8} />
+              <stop offset="95%" stopColor={chartColors.getLime()} stopOpacity={0.1} />
             </linearGradient>
             <linearGradient id="colorDespesas" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#FF0000" stopOpacity={0.8} />
-              <stop offset="95%" stopColor="#FF0000" stopOpacity={0.1} />
+              <stop offset="5%" stopColor={chartColors.getRed()} stopOpacity={0.8} />
+              <stop offset="95%" stopColor={chartColors.getRed()} stopOpacity={0.1} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E5E5E5" />
+          <CartesianGrid strokeDasharray="3 3" stroke={chartColors.getGray100()} />
           <XAxis
             dataKey="month"
-            stroke="#666"
+            stroke={chartColors.getGray600()}
             style={{ fontSize: '12px' }}
           />
           <YAxis
-            stroke="#666"
+            stroke={chartColors.getGray600()}
             style={{ fontSize: '12px' }}
             tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
           />
           <Tooltip
             formatter={(value: number | undefined) => value ? formatCurrency(value) : ''}
             contentStyle={{
-              backgroundColor: 'white',
-              border: '1px solid #E5E5E5',
-              borderRadius: '8px',
-              padding: '8px',
+              backgroundColor: 'var(--gray-0)',
+              border: `1px solid var(--gray-100)`,
+              borderRadius: 'var(--radius-md)',
+              padding: 'var(--spacing-sm)',
             }}
           />
           <Legend
@@ -77,14 +78,14 @@ export function AreaChart({
           <Area
             type="monotone"
             dataKey="Receitas"
-            stroke="#A7FF00"
+            stroke={chartColors.getLime()}
             fillOpacity={1}
             fill="url(#colorReceitas)"
           />
           <Area
             type="monotone"
             dataKey="Despesas"
-            stroke="#FF0000"
+            stroke={chartColors.getRed()}
             fillOpacity={1}
             fill="url(#colorDespesas)"
           />

@@ -1,5 +1,6 @@
 import { Card, Icon } from '@/components/ui'
 import { formatCurrency } from '@/utils/formatters'
+import { chartColors } from '@/utils/chartColors'
 import {
   BarChart as RechartsBarChart,
   Bar,
@@ -30,25 +31,25 @@ export function BarChart({ title, data }: BarChartProps) {
 
       <ResponsiveContainer width="100%" height={300}>
         <RechartsBarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E5E5E5" />
-          <XAxis dataKey="name" stroke="#666" style={{ fontSize: '12px' }} />
+          <CartesianGrid strokeDasharray="3 3" stroke={chartColors.getGray100()} />
+          <XAxis dataKey="name" stroke={chartColors.getGray600()} style={{ fontSize: '12px' }} />
           <YAxis
-            stroke="#666"
+            stroke={chartColors.getGray600()}
             style={{ fontSize: '12px' }}
             tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
           />
           <Tooltip
             formatter={(value: number | undefined) => value ? formatCurrency(value) : ''}
             contentStyle={{
-              backgroundColor: 'white',
-              border: '1px solid #E5E5E5',
-              borderRadius: '8px',
-              padding: '8px',
+              backgroundColor: 'var(--gray-0)',
+              border: `1px solid var(--gray-100)`,
+              borderRadius: 'var(--radius-md)',
+              padding: 'var(--spacing-sm)',
             }}
           />
           <Legend />
-          <Bar dataKey="Receitas" fill="#A7FF00" radius={[8, 8, 0, 0]} />
-          <Bar dataKey="Despesas" fill="#FF0000" radius={[8, 8, 0, 0]} />
+          <Bar dataKey="Receitas" fill={chartColors.getLime()} radius={[8, 8, 0, 0]} />
+          <Bar dataKey="Despesas" fill={chartColors.getRed()} radius={[8, 8, 0, 0]} />
         </RechartsBarChart>
       </ResponsiveContainer>
     </Card>

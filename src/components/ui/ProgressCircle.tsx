@@ -11,7 +11,7 @@ export function ProgressCircle({
   percentage,
   size = 60,
   strokeWidth = 4,
-  color = '#A7FF00',
+  color = 'var(--lime-500)',
   className = '',
   ...props
 }: ProgressCircleProps) {
@@ -34,7 +34,7 @@ export function ProgressCircle({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="#E5E5E5"
+          stroke="var(--gray-100)"
           strokeWidth={strokeWidth}
           fill="transparent"
         />
