@@ -1,8 +1,12 @@
 import { ReactNode, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Menu, Search, SlidersHorizontal, Calendar } from "lucide-react";
+import { Menu, Search, SlidersHorizontal, Calendar as CalendarIcon } from "lucide-react";
 import { Sidebar } from "./Sidebar";
+import { DateRangePicker } from "./DateRangePicker";
+import { DateRange } from "react-day-picker";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface LayoutProps {
   children: ReactNode;
@@ -24,6 +28,10 @@ export function Layout({
   actionButton,
 }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: new Date(2026, 0, 1),
+    to: new Date(2026, 0, 31),
+  });
 
   return (
     <div className="flex h-screen bg-[#F9FAFB] overflow-hidden">
@@ -81,9 +89,20 @@ export function Layout({
 
               {/* Date selector - Hidden on mobile */}
               {showDatePicker && (
-                <div className="hidden md:flex items-center gap-[8px] px-[24px] py-[12px] border border-[#9CA3AF] rounded-[100px] shrink-0 transition-all duration-300 hover:border-[#2a89ef] hover:bg-[#2a89ef]/5 cursor-pointer">
-                  <Calendar className="size-[16px] transition-colors duration-300 text-[#6B7280] group-hover:text-[#2a89ef]" />
-                  <span className="text-[14px] whitespace-nowrap">01 Jan - 31 Jan 2026</span>
+                <div className="hidden md:block shrink-0">
+                  <DateRangePicker
+                    date={dateRange}
+                    onDateChange={setDateRange}
+                  >
+                    <div className="flex items-center gap-[8px] px-[24px] py-[12px] border border-[#9CA3AF] rounded-[100px] shrink-0 transition-all duration-300 hover:border-[#2a89ef] hover:bg-[#2a89ef]/5 cursor-pointer group">
+                      <CalendarIcon className="size-[16px] transition-colors duration-300 text-[#6B7280] group-hover:text-[#2a89ef]" />
+                      <span className="text-[14px] whitespace-nowrap">
+                        {dateRange?.from && dateRange?.to
+                          ? `${format(dateRange.from, "dd MMM", { locale: ptBR })} - ${format(dateRange.to, "dd MMM yyyy", { locale: ptBR })}`
+                          : "01 Jan - 31 Jan 2026"}
+                      </span>
+                    </div>
+                  </DateRangePicker>
                 </div>
               )}
             </div>
