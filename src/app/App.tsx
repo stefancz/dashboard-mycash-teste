@@ -11,6 +11,7 @@ import { BudgetCard } from "@/app/components/BudgetCard";
 import { CashFlowChart } from "@/app/components/CashFlowChart";
 import { AccountCard } from "@/app/components/AccountCard";
 import { UpcomingExpense } from "@/app/components/UpcomingExpense";
+import { AnimatedNumber } from "@/app/components/AnimatedNumber";
 import { Input } from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
 import { Plus, Search, SlidersHorizontal, Calendar, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, Menu, X } from "lucide-react";
@@ -336,24 +337,24 @@ export default function App() {
               )}
               
               {/* Search */}
-              <div className="flex items-center gap-[8px] px-[16px] sm:px-[24px] py-[12px] border border-[#9CA3AF] rounded-[100px] min-w-[140px] sm:w-[175px] shrink-0">
-                <Search className="size-[16px] shrink-0" />
+              <div className="flex items-center gap-[8px] px-[16px] sm:px-[24px] py-[12px] border border-[#9CA3AF] rounded-[100px] min-w-[140px] sm:w-[175px] shrink-0 transition-all duration-300 focus-within:border-[#2a89ef] focus-within:ring-2 focus-within:ring-[#2a89ef]/20 hover:border-[#6B7280]">
+                <Search className="size-[16px] shrink-0 transition-colors duration-300 text-[#6B7280] group-focus-within:text-[#2a89ef]" />
                 <Input
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Pesquisar"
-                  className="border-0 p-0 h-auto focus-visible:ring-0 text-[14px] w-full"
+                  className="border-0 p-0 h-auto focus-visible:ring-0 text-[14px] w-full bg-transparent"
                 />
               </div>
 
               {/* Filter button */}
-              <Button variant="ghost" size="icon" className="shrink-0">
-                <SlidersHorizontal className="size-[16px]" />
+              <Button variant="ghost" size="icon" className="shrink-0 transition-all duration-300 hover:scale-110 hover:bg-gray-100 active:scale-95">
+                <SlidersHorizontal className="size-[16px] transition-transform duration-300 hover:rotate-90" />
               </Button>
 
               {/* Date selector - Hidden on mobile */}
-              <div className="hidden md:flex items-center gap-[8px] px-[24px] py-[12px] border border-[#9CA3AF] rounded-[100px] shrink-0">
-                <Calendar className="size-[16px]" />
+              <div className="hidden md:flex items-center gap-[8px] px-[24px] py-[12px] border border-[#9CA3AF] rounded-[100px] shrink-0 transition-all duration-300 hover:border-[#2a89ef] hover:bg-[#2a89ef]/5 cursor-pointer">
+                <Calendar className="size-[16px] transition-colors duration-300 text-[#6B7280] group-hover:text-[#2a89ef]" />
                 <span className="text-[14px] whitespace-nowrap">01 Jan - 31 Jan 2026</span>
               </div>
 
@@ -370,21 +371,22 @@ export default function App() {
             {/* Add transaction button */}
             <Button
               onClick={() => setIsDialogOpen(true)}
-              className="bg-[#080b12] hover:bg-[#080b12]/90 text-white rounded-[100px] px-[16px] py-[12px] gap-[8px] w-full sm:w-auto shrink-0"
+              className="bg-[#080b12] hover:bg-[#080b12]/90 text-white rounded-[100px] px-[16px] py-[12px] gap-[8px] w-full sm:w-auto shrink-0 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
             >
-              <Plus className="size-[16px]" />
+              <Plus className="size-[16px] transition-transform duration-300 group-hover:rotate-90" />
               <span className="font-semibold text-[16px] sm:text-[18px]">Nova transação</span>
             </Button>
           </div>
 
           {/* Budget Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-[12px] sm:gap-[18px] mb-[20px] sm:mb-[30px]">
-            {financialData.budgetSpending.map((budget) => (
+            {financialData.budgetSpending.map((budget, index) => (
               <BudgetCard
                 key={budget.name}
                 category={budget.name}
                 spent={budget.spent}
                 allocated={budget.allocated}
+                index={index}
               />
             ))}
           </div>
@@ -392,8 +394,8 @@ export default function App() {
           {/* Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-[16px] sm:gap-[20px] mb-[20px] sm:mb-[30px]">
             {/* Total Balance */}
-            <div className="bg-white rounded-[20px] border border-[#E5E7EB] p-[20px] sm:p-[24px] flex flex-col justify-center gap-[24px] sm:gap-[32px]">
-              <div className="size-[24px]">
+            <div className="bg-white rounded-[20px] border border-[#E5E7EB] p-[20px] sm:p-[24px] flex flex-col justify-center gap-[24px] sm:gap-[32px] transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:border-[#2a89ef]/20 animate-in fade-in slide-in-from-bottom-4">
+              <div className="size-[24px] transition-transform duration-300 hover:scale-110">
                 <svg className="block size-full" fill="none" viewBox="0 0 24 24">
                   <path
                     d="M3 8C3 6.89543 3.89543 6 5 6H19C20.1046 6 21 6.89543 21 8V16C21 17.1046 20.1046 18 19 18H5C3.89543 18 3 17.1046 3 16V8Z"
@@ -408,29 +410,29 @@ export default function App() {
               <div>
                 <p className="text-[16px] sm:text-[18px] text-[#080b12] mb-[4px]">Saldo total</p>
                 <p className="text-[24px] sm:text-[28px] font-bold text-[#2a89ef]">
-                  R$ {financialData.balance.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  <AnimatedNumber value={financialData.balance} duration={1500} />
                 </p>
               </div>
             </div>
 
             {/* Income */}
-            <div className="bg-white rounded-[20px] border border-[#E5E7EB] p-[20px] sm:p-[24px] flex flex-col justify-center gap-[24px] sm:gap-[32px]">
-              <ArrowDown className="size-[24px] text-[#15BE78]" />
+            <div className="bg-white rounded-[20px] border border-[#E5E7EB] p-[20px] sm:p-[24px] flex flex-col justify-center gap-[24px] sm:gap-[32px] transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:border-[#15BE78]/20 animate-in fade-in slide-in-from-bottom-4 delay-75">
+              <ArrowDown className="size-[24px] text-[#15BE78] transition-transform duration-300 hover:scale-110" />
               <div>
                 <p className="text-[16px] sm:text-[18px] text-[#080b12] mb-[4px]">Receitas</p>
                 <p className="text-[24px] sm:text-[28px] font-bold text-[#080b12]">
-                  R$ {financialData.totalIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  <AnimatedNumber value={financialData.totalIncome} duration={1500} />
                 </p>
               </div>
             </div>
 
             {/* Expenses */}
-            <div className="bg-white rounded-[20px] border border-[#E5E7EB] p-[20px] sm:p-[24px] flex flex-col justify-center gap-[24px] sm:gap-[32px]">
-              <ArrowUp className="size-[24px] text-[#E61E32]" />
+            <div className="bg-white rounded-[20px] border border-[#E5E7EB] p-[20px] sm:p-[24px] flex flex-col justify-center gap-[24px] sm:gap-[32px] transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:border-[#E61E32]/20 animate-in fade-in slide-in-from-bottom-4 delay-150">
+              <ArrowUp className="size-[24px] text-[#E61E32] transition-transform duration-300 hover:scale-110" />
               <div>
                 <p className="text-[16px] sm:text-[18px] text-[#080b12] mb-[4px]">Despesas</p>
                 <p className="text-[24px] sm:text-[28px] font-bold text-[#080b12]">
-                  R$ {financialData.totalExpenses.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  <AnimatedNumber value={financialData.totalExpenses} duration={1500} />
                 </p>
               </div>
             </div>
