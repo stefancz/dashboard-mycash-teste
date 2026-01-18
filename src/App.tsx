@@ -6,7 +6,6 @@ import { ToastProvider } from '@/contexts/ToastContext'
 import { lazy, Suspense } from 'react'
 import { Dashboard } from '@/pages/Dashboard'
 import { Login } from '@/pages/Login'
-import { Register } from '@/pages/Register'
 
 // Lazy loading de páginas para code splitting
 const Transactions = lazy(() => import('@/pages/Transactions').then(m => ({ default: m.Transactions })))
@@ -51,7 +50,6 @@ function App() {
         <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
 
         {/* Protected Routes */}
         <Route

@@ -1,5 +1,5 @@
 import { useState, FormEvent } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Button, Input, Card } from '@/components/ui'
 import { Icon } from '@/components/ui'
 import { useAuth } from '@/hooks/useAuth'
@@ -72,12 +72,6 @@ export function Login() {
           </Button>
         </form>
 
-        <div className="mt-6 text-center text-sm">
-          <span className="text-gray-600">Não tem uma conta? </span>
-          <Link to="/register" className="text-blue-600 hover:text-blue-700 font-medium">
-            Cadastre-se
-          </Link>
-        </div>
       </Card>
     </div>
   )
