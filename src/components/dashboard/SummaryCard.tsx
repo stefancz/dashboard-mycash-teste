@@ -16,16 +16,16 @@ export function SummaryCard({
 }: SummaryCardProps) {
   const variants = {
     default: 'text-gray-900',
-    success: 'text-green-600',
-    error: 'text-red-600',
-    info: 'text-blue-600',
+    success: 'text-green-500',
+    error: 'text-red-500',
+    info: 'text-blue-500',
   }
 
   const iconColors = {
     default: 'text-gray-700',
-    success: 'text-green-600',
-    error: 'text-red-600',
-    info: 'text-blue-600',
+    success: 'text-green-500',
+    error: 'text-red-500',
+    info: 'text-blue-500',
   }
 
   return (
