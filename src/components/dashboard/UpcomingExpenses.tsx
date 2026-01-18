@@ -1,5 +1,6 @@
-import { Card, Icon } from '@/components/ui'
-import { formatCurrency } from '@/utils/formatters'
+import { Card } from '@/components/ui'
+import { Icon } from '@/components/ui'
+import { UpcomingExpense } from './UpcomingExpense'
 
 interface Expense {
   id: string
@@ -12,44 +13,33 @@ interface Expense {
 
 interface UpcomingExpensesProps {
   expenses: Expense[]
+  onTogglePaid?: (id: string) => void
 }
 
-export function UpcomingExpenses({ expenses }: UpcomingExpensesProps) {
+export function UpcomingExpenses({ expenses, onTogglePaid }: UpcomingExpensesProps) {
   return (
     <Card padding="lg" className="w-full">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <Icon name="document" size={20} />
-          <h2 className="text-lg font-semibold text-gray-900">Próximas despesas</h2>
+          <Icon name="calendar" size={20} />
+          <h3 className="text-lg font-semibold text-text-primary">Próximas despesas</h3>
         </div>
-        <button className="p-2 rounded-md hover:bg-gray-100 transition-colors">
-          <Icon name="plus" size={18} />
+        <button className="p-2 rounded-md hover:bg-background-hover transition-colors">
+          <Icon name="plus" size={16} />
         </button>
       </div>
 
-      <div className="space-y-2">
-        {expenses.map((expense) => (
-          <div
+      <div className="space-y-0">
+        {expenses.slice(0, 5).map((expense) => (
+          <UpcomingExpense
             key={expense.id}
-            className="flex items-center justify-between p-3 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-gray-900">{expense.name}</p>
-              <p className="text-xs text-gray-500 mt-0.5">
-                Vence dia {expense.dueDate} • {expense.paymentMethod}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <p className="text-sm font-bold text-gray-900">
-                {formatCurrency(expense.amount)}
-              </p>
-              {expense.paid && (
-                <div className="text-green-500">
-                  <Icon name="checkmark" size={20} />
-                </div>
-              )}
-            </div>
-          </div>
+            description={expense.name}
+            amount={expense.amount}
+            dueDate={`Vence dia ${expense.dueDate}`}
+            account={expense.paymentMethod}
+            isPaid={expense.paid || false}
+            onTogglePaid={onTogglePaid ? () => onTogglePaid(expense.id) : undefined}
+          />
         ))}
       </div>
     </Card>

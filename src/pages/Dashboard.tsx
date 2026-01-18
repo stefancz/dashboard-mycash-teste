@@ -1,18 +1,18 @@
 import { Container } from '@/components/layout/Container'
-import { CategoryCard } from '@/components/dashboard/CategoryCard'
+import { BudgetCard } from '@/components/dashboard/CategoryCard'
 import { SummaryCard } from '@/components/dashboard/SummaryCard'
-import { AreaChart } from '@/components/charts/AreaChart'
+import { CashFlowChart } from '@/components/charts/AreaChart'
 import { CardsList } from '@/components/dashboard/CardsList'
 import { UpcomingExpenses } from '@/components/dashboard/UpcomingExpenses'
 import { TransactionTable } from '@/components/transactions/TransactionTable'
 import { Card, Transaction } from '@/types'
 
 // Mock data - will be replaced with Supabase in PROMPT 10
-const categories = [
-  { category: 'Aluguel', percentage: 25, amount: 4000 },
-  { category: 'Alimentação', percentage: 15, amount: 2000 },
-  { category: 'Mercado', percentage: 5, amount: 1500 },
-  { category: 'Academia', percentage: 3, amount: 120 },
+const budgetCategories = [
+  { category: 'Aluguel', allocated: 4000, spent: 4000 },
+  { category: 'Alimentação', allocated: 2000, spent: 2000 },
+  { category: 'Mercado', allocated: 1500, spent: 1500 },
+  { category: 'Academia', allocated: 120, spent: 120 },
 ]
 
 const cards: Card[] = [
@@ -118,69 +118,74 @@ const transactions: Transaction[] = [
 ]
 
 // Mock chart data
-const months = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ']
-const incomeData = [12000, 12500, 13000, 12800, 13200, 12000, 11500, 12500, 13000, 13500, 14000, 14500]
-const expenseData = [10000, 10200, 10500, 9800, 11000, 10000, 10800, 10200, 10500, 10800, 11000, 11200]
+const monthlyData = [
+  { month: 'JAN', receitas: 12000, despesas: 8000 },
+  { month: 'FEV', receitas: 12500, despesas: 9500 },
+  { month: 'MAR', receitas: 13000, despesas: 11000 },
+  { month: 'ABR', receitas: 12000, despesas: 10500 },
+  { month: 'MAI', receitas: 14000, despesas: 9000 },
+  { month: 'JUN', receitas: 12500, despesas: 10000 },
+  { month: 'JUL', receitas: 12000, despesas: 8500 },
+  { month: 'AGO', receitas: 13500, despesas: 9500 },
+  { month: 'SET', receitas: 12000, despesas: 10000 },
+  { month: 'OUT', receitas: 12500, despesas: 8000 },
+  { month: 'NOV', receitas: 13000, despesas: 9000 },
+  { month: 'DEZ', receitas: 12000, despesas: 10000 },
+]
 
 export function Dashboard() {
   return (
     <Container>
-      {/* Category Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {categories.map((cat, index) => (
-          <CategoryCard
+      {/* Budget Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-5 sm:mb-8">
+        {budgetCategories.map((budget, index) => (
+          <BudgetCard
             key={index}
-            category={cat.category}
-            percentage={cat.percentage}
-            amount={cat.amount}
+            category={budget.category}
+            allocated={budget.allocated}
+            spent={budget.spent}
           />
         ))}
       </div>
 
-      {/* Summary Cards and Chart Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        {/* Left: Summary Cards */}
-        <div className="space-y-4 order-1 lg:order-1">
-          <SummaryCard
-            label="Saldo total"
-            amount={2000}
-            icon="dollar"
-            variant="info"
-          />
-          <SummaryCard
-            label="Receitas"
-            amount={12000}
-            icon="arrowDown"
-            variant="success"
-          />
-          <SummaryCard
-            label="Despesas"
-            amount={10000}
-            icon="arrowUp"
-            variant="error"
-          />
-        </div>
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mb-5 sm:mb-8">
+        <SummaryCard
+          label="Saldo total"
+          amount={2000}
+          icon="dollar"
+          variant="info"
+        />
+        <SummaryCard
+          label="Receitas"
+          amount={12000}
+          icon="arrowDown"
+          variant="success"
+        />
+        <SummaryCard
+          label="Despesas"
+          amount={10000}
+          icon="arrowUp"
+          variant="error"
+        />
+      </div>
 
-        {/* Center: Chart */}
-        <div className="lg:col-span-1 order-3 lg:order-2">
-          <AreaChart
-            title="Fluxo financeiro"
-            incomeData={incomeData}
-            expenseData={expenseData}
-            months={months}
-            maxValue={17500}
-          />
-        </div>
+      {/* Chart and Cards Section */}
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-5 sm:gap-8 mb-5 sm:mb-8">
+        {/* Cash Flow Chart */}
+        <CashFlowChart data={monthlyData} />
 
-        {/* Right: Cards List and Upcoming Expenses */}
-        <div className="space-y-6 order-2 lg:order-3">
-          <CardsList cards={cards} />
-          <UpcomingExpenses expenses={upcomingExpenses} />
-        </div>
+        {/* Cards & Accounts */}
+        <CardsList cards={cards} />
+      </div>
+
+      {/* Upcoming Expenses */}
+      <div className="mb-5 sm:mb-8">
+        <UpcomingExpenses expenses={upcomingExpenses} />
       </div>
 
       {/* Extrato detalhado */}
-      <div className="mt-6">
+      <div>
         <TransactionTable transactions={transactions} />
       </div>
     </Container>
