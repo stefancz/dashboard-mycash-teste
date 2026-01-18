@@ -39,7 +39,12 @@ export function BarChart({ title, data }: BarChartProps) {
             tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
           />
           <Tooltip
-            formatter={(value: number | undefined) => value ? formatCurrency(value) : ''}
+            formatter={(value: any) => {
+              if (typeof value === 'number') {
+                return formatCurrency(value)
+              }
+              return ''
+            }}
             contentStyle={{
               backgroundColor: 'var(--gray-0)',
               border: `1px solid var(--gray-100)`,

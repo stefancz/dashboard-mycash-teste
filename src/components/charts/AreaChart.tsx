@@ -83,7 +83,12 @@ export function CashFlowChart({ data }: CashFlowChartProps) {
             tickFormatter={(value) => `R$ ${(value / 1000).toFixed(1)}k`}
           />
           <Tooltip
-            formatter={(value: number | undefined) => value ? `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : ''}
+            formatter={(value: any) => {
+              if (typeof value === 'number') {
+                return `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+              }
+              return ''
+            }}
             contentStyle={{
               backgroundColor: 'var(--gray-0)',
               border: '1px solid var(--gray-200)',

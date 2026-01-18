@@ -52,7 +52,14 @@ export function PieChart({ title, data }: PieChartProps) {
               <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
             ))}
           </Pie>
-          <Tooltip formatter={(value: number | undefined) => value ? formatCurrency(value) : ''} />
+          <Tooltip
+            formatter={(value: any) => {
+              if (typeof value === 'number') {
+                return formatCurrency(value)
+              }
+              return ''
+            }}
+          />
           <Legend />
         </RechartsPieChart>
       </ResponsiveContainer>
