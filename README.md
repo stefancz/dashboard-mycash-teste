@@ -172,10 +172,6 @@ npm run preview
    - due_date (text)
    - created_at (timestamp)
 
-## 📚 Documentação
-
-Veja `DOCUMENTATION.md` para detalhes completos de cada prompt implementado.
-
 ## 🤝 Contribuindo
 
 1. Siga as regras definidas em `.cursor/skills/regras-figma/SKILL.md`
